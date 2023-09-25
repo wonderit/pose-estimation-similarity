@@ -26,7 +26,8 @@ export function isAndroid() {
 }
 
 export function isMobile() {
-  return isAndroid() || isiOS();
+  return true;
+  // return isAndroid() || isiOS();
 }
 
 /**
