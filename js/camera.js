@@ -86,7 +86,7 @@ export class Camera {
 
     return camera;
 
-    window.requestAnimationFrame(capture);
+    // window.requestAnimationFrame(capture);
   }
 
 

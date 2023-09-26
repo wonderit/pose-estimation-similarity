@@ -4,8 +4,8 @@ import { setupStats } from './stats_panel.js';
 import { setBackendAndEnvFlags } from './util.js';
 
 
-let detector, camera, stats;
-let rafId, videoContext;
+let detector, camera, stats, detector2;
+let rafId;
 let startInferenceTime, numInferences = 0;
 let inferenceTimeSum = 0, lastPanelUpdate = 0;
 
@@ -112,7 +112,7 @@ async function renderResult() {
     beginEstimatePosesStats();
 
     webcamPoses = await detector.estimatePoses(camera.webcam, { flipHorizontal: false });
-    videoPoses = await detector.estimatePoses(video, { flipHorizontal: false });
+    videoPoses = await detector2.estimatePoses(video, { flipHorizontal: false });
 
     endEstimatePosesStats();
 
@@ -146,6 +146,7 @@ async function app() {
     stats = setupStats();
 
     detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet);
+    detector2 = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet);
 
     camera = await Camera.setupCamera(STATE.camera);
 
