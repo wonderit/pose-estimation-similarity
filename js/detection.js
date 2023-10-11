@@ -1,8 +1,7 @@
 import { Camera } from './camera.js';
-import { STATE } from './params.js';
+import {BLAZEPOSE_CONFIG, STATE} from './params.js';
 import { setupStats } from './stats_panel.js';
 import { setBackendAndEnvFlags } from './util.js';
-
 
 let detector, camera, stats, detector2;
 let rafId;
@@ -11,9 +10,11 @@ let inferenceTimeSum = 0, lastPanelUpdate = 0;
 
 // varients for video
 var video = document.getElementById("video");
+
+// get jsFileName from video.src (e.g.: "video/1c.mp4#t=0.1" -> "1c")
+let jsFileName = video.src.split("/").pop().split("#")[0].split(".")[0];
+
 var canvasVideo = document.createElement('canvas');
-
-
 canvasVideo.width = video.offsetWidth;
 canvasVideo.height = video.offsetHeight;
 
@@ -31,37 +32,31 @@ var videoFlag = false;
 
 
 video.addEventListener('ended', showScore, false);
-// document.getElementById('video').addEventListener('ended',myHandler,false);
 function showScore(e) {
     //remove video here
     //add menu here
     var finalScore = getFinalScore();
 }
 
-
-// 최종 Score 계산 
+// 최종 Score 계산
 let great_cnt = 0, good_cnt = 0, soso_cnt = 0, bad_cnt = 0;
 
 function getScore(weight) {
     maxScore += 3;
-    if (weight <= 0.08) {
+    if (weight <= 0.08) { // great
         myScore += 3;
         great_cnt++;
-        // console.log("great");
     }
-    else if (weight <= 0.11) {
+    else if (weight <= 0.11) { // good
         myScore += 2;
         good_cnt++;
-        // console.log("good");
     }
-    else if (weight <= 0.15) {
+    else if (weight <= 0.15) { // soso
         myScore += 1;
         soso_cnt++;
-        // console.log("soso");
     }
-    else {
+    else { // bad
         bad_cnt++;
-        // console.log("bad");
     }
 
 
@@ -98,7 +93,6 @@ function endEstimatePosesStats() {
 }
 
 async function renderResult() {
-
     if (camera.webcam.readyState < 2) {
         await new Promise((resolve) => {
             camera.webcam.onloadeddata = () => {
@@ -107,33 +101,49 @@ async function renderResult() {
         });
     }
 
-
+    canvasVideo.getContext('2d').drawImage(video, 0, 0, canvasVideo.width, canvasVideo.height);
     // FPS only counts the time it takes to finish estimatePoses.
     beginEstimatePosesStats();
 
-    webcamPoses = await detector.estimatePoses(camera.webcam, { flipHorizontal: false });
-    videoPoses = await detector2.estimatePoses(video, { flipHorizontal: false });
+    webcamPoses = await detector.estimatePoses(camera.webcam, { flipHorizontal: true });
 
     endEstimatePosesStats();
 
-    camera.drawCtx();
+    // get video poses array
+    fetch(`../video/${jsFileName}.json`)
+        .then((res) => {
+            return res.json();
+        })
+        .then((bodySeq) => {
 
-    // The null check makes sure the UI is not in the middle of changing to a
-    // different model. If during model change, the result is from an old model,
-    // which shouldn't be rendered.
-    if (webcamPoses.length > 0 && !STATE.isModelChanged) {
-        camera.drawResults(webcamPoses);
+            // videoPoses = await detector2.estimatePoses(canvasVideo, { flipHorizontal: false });
+            var frameNumber = Math.floor((video.currentTime / video.duration) * bodySeq.length)
+            videoPoses = bodySeq[frameNumber];
 
-        if (video.paused) { videoFlag = false; }
-        else { videoFlag = true; }
+            camera.drawCtx();
 
-        if (videoFlag && videoPoses.length > 0) {
-            weightedDistance = poseSimilarity(videoPoses[0].keypoints, webcamPoses[0].keypoints);
-            getScore(weightedDistance);
-            console.log("score:", weightedDistance, myScore, maxScore);
-        }
+            // The null check makes sure the UI is not in the middle of changing to a
+            // different model. If during model change, the result is from an old model,
+            // which shouldn't be rendered.
+            if (webcamPoses.length > 0 && !STATE.isModelChanged) {
+                camera.drawResults(webcamPoses);
+                if (video.paused) { videoFlag = false; }
+                else { videoFlag = true; }
+                if (videoFlag && videoPoses.length > 0) {
+                    // save data
+                    // videoPosesResult.push(videoPoses[0].keypoints3D);
+                    // weightedDistance = poseSimilarity(videoPoses[0].keypoints3D.slice(BLAZEPOSE_CONFIG.indexStart,BLAZEPOSE_CONFIG.indexEnd),
+                    //     webcamPoses[0].keypoints3D.slice(BLAZEPOSE_CONFIG.indexStart,BLAZEPOSE_CONFIG.indexEnd));
 
-    }
+                    weightedDistance = poseSimilarity(
+                        videoPoses.slice(BLAZEPOSE_CONFIG.indexStart,BLAZEPOSE_CONFIG.indexEnd),
+                        webcamPoses[0].keypoints3D.slice(BLAZEPOSE_CONFIG.indexStart,BLAZEPOSE_CONFIG.indexEnd)
+                    )
+                    getScore(weightedDistance);
+                    // console.log("score:", weightedDistance, myScore, maxScore);
+                }
+            }
+        });
 }
 
 async function renderPrediction() {
@@ -144,9 +154,9 @@ async function renderPrediction() {
 async function app() {
 
     stats = setupStats();
-
-    detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet);
-    detector2 = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet);
+    // movenet -> blazepose
+    detector = await poseDetection.createDetector(poseDetection.SupportedModels.BlazePose, BLAZEPOSE_CONFIG);
+    // detector2 = await poseDetection.createDetector(poseDetection.SupportedModels.BlazePose, BLAZEPOSE_CONFIG);
 
     camera = await Camera.setupCamera(STATE.camera);
 
@@ -267,10 +277,3 @@ function poseSimilarity(pose1, pose2) {
     return weightedDistanceMatching(vectorPose1XY, vectorPose2XY, vectorPose1Scores);
 }
 app();
-
-// function poseSimilarity(pose1, pose2);
-// └ function vectorizeAndNormalize(pose);
-// │   └ function convertPoseToVector(pose);
-// │   └ function scaleAndTranslate(vectorPoseXY, vectorPoseTransform);
-// │   └ function L2Normalization(vectorPoseXY);
-// └ function weightedDistanceMatching(vectorPose1XY, vectorPose2XY, vectorConfidences);

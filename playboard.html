@@ -143,8 +143,6 @@
 
                                     <video id="video" width="100%" height="auto" src="video/1c.mp4#t=0.1" type="video/mp4"
                                            crossorigin='anonymous' playsinline>
-                                        <!-- <source src="video/video2.mp4" type="video/mp4" crossorigin='anonymous'> -->
-
                                         HTML5 video
                                     </video>
                                     <!-- </canvas> -->
@@ -172,20 +170,6 @@
                                 <div
                                     class="card-header py-3 d-flex flex-row align-items-center justify-content-between w-100">
                                     <h6 class="m-0 font-weight-bold text-primary">🕺내 모습💃</h6>
-<!--                                    <div class="dropdown no-arrow">-->
-<!--                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"-->
-<!--                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
-<!--                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>-->
-<!--                                        </a>-->
-<!--                                        <div class="dropdown-menu dropdown-menu-right shadow animated&#45;&#45;fade-in"-->
-<!--                                            aria-labelledby="dropdownMenuLink">-->
-<!--                                            <div class="dropdown-header">Dropdown Header:</div>-->
-<!--                                            <a class="dropdown-item" href="#">Action</a>-->
-<!--                                            <a class="dropdown-item" href="#">Another action</a>-->
-<!--                                            <div class="dropdown-divider"></div>-->
-<!--                                            <a class="dropdown-item" href="#">Something else here</a>-->
-<!--                                        </div>-->
-<!--                                    </div>-->
                                 </div>
                                 <!-- Card Body -->
                                 <div class="canvas-wrapper">
@@ -325,9 +309,6 @@
 
     <!-- You must explicitly require a TF.js backend if you're not using the TF.js union bundle. -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
-    <!-- Alternatively you can use the WASM backend: <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm/dist/tf-backend-wasm.js"></script> -->
-<!--    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>-->
-<!--    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgpu/dist/tf-backend-webgpu.js"></script>-->
 
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
 
@@ -341,59 +322,6 @@
         }
         function pauseVideo() {
             video.pause();
-        }
-        // video.addEventListener('ended', (event) => {
-        // console.log('Video stopped either because 1) it was over, ' +
-        //     'or 2) no further data is available.');
-        // video.load();
-        // });
-
-        // function setVideo(num){
-        //     video.pause();
-        //     videoFlag = false;
-        //     video.onloadeddata = function() {
-        //         alert("Browser has loaded the current frame");
-        //         // app();
-        //     };
-        //     video.removeAttribute('src');
-        //     video.src = './video/'+num+'c.mp4';
-        //     video.load();
-        //     // app();
-        // }
-
-
-        function setVideo(num){
-
-            video.onloadeddata = function() {
-                alert("Browser has loaded the current frame");
-                // app();
-            };
-            // video.removeAttribute('src');
-            video.src = './video/'+num+'c.mp4';
-            // video.load();
-
-            // if(num==1){document.getElementById("videoSrc").setAttribute("src", "video/video.mp4");}
-            // else{document.getElementById("videoSrc").setAttribute("src", "video/video2.mp4");}
-            // alert(document.getElementById("videoSrc").getAttribute("src"));
-            // let _video = document.querySelector('#videoSrc');
-            // if(num==1){
-            //     // let _video = document.querySelector('videoSrc');
-            //     video.removeAttribute('src'); // src 프로퍼티를 제거
-            //     video.src = 'video/video.mp4'; // 다른 미디어로 소스 변경
-            //     video.load(); // 새로운 정보를 다시 로드
-            // }
-            // else{
-            //     // let _video = document.querySelector('videoSrc');
-            //     video.removeAttribute('src'); // src 프로퍼티를 제거
-            //     video.src = 'video/video2.mp4';
-            //     video.load(); // 새로운 정보를 다시 로드
-            // }
-            // _video.load(); // 새로운 정보를 다시 로드
-            // _video.removeAttribute('src'); // src 프로퍼티를 제거
-            // _video.src = 'b.mp4'; // 다른 미디어로 소스 변경
-            // _video.load(); // 새로운 정보를 다시 로드
-
-            // _video.play(); // 잘 동작함
         }
 
     </script>

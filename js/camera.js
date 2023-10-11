@@ -89,12 +89,6 @@ export class Camera {
     // window.requestAnimationFrame(capture);
   }
 
-
-
-
-
-
-
   drawCtx() {
     this.ctx.drawImage(
       this.webcam, 0, 0, this.webcam.videoWidth, this.webcam.videoHeight);
@@ -130,34 +124,38 @@ export class Camera {
    * @param keypoints A list of keypoints.
    */
   drawKeypoints(keypoints) {
-
+    // movenet -> blazepose
     const keypointInd =
-      poseDetection.util.getKeypointIndexBySide(params.STATE.MoveNet);
+      poseDetection.util.getKeypointIndexBySide(params.STATE.BlazePose);
     this.ctx.fillStyle = 'White';
     this.ctx.strokeStyle = 'White';
     this.ctx.lineWidth = params.DEFAULT_LINE_WIDTH;
 
     for (const i of keypointInd.middle) {
-      this.drawKeypoint(keypoints[i]);
+      this.drawKeypoint(keypoints[i], i);
     }
 
     this.ctx.fillStyle = 'Green';
     for (const i of keypointInd.left) {
-      this.drawKeypoint(keypoints[i]);
+      this.drawKeypoint(keypoints[i], i);
     }
 
     this.ctx.fillStyle = 'Orange';
     for (const i of keypointInd.right) {
-      this.drawKeypoint(keypoints[i]);
+      this.drawKeypoint(keypoints[i], i);
     }
   }
 
-  drawKeypoint(keypoint) {
+  drawKeypoint(keypoint, idx) {
     // If score is null, just show the keypoint.
     const score = keypoint.score != null ? keypoint.score : 1;
-    const scoreThreshold = params.MOVENET_CONFIG.scoreThreshold || 0;
+    // // movenet -> blazepose
+    const scoreThreshold = params.BLAZEPOSE_CONFIG.scoreThreshold || 0;
 
-    if (score >= scoreThreshold) {
+    if (score >= scoreThreshold
+        && idx >= params.BLAZEPOSE_CONFIG.indexStart
+        && idx <= params.BLAZEPOSE_CONFIG.indexEnd
+    ) {
       const circle = new Path2D();
       circle.arc(keypoint.x, keypoint.y, params.DEFAULT_RADIUS, 0, 2 * Math.PI);
       this.ctx.fill(circle);
@@ -173,8 +171,8 @@ export class Camera {
     this.ctx.fillStyle = 'White';
     this.ctx.strokeStyle = 'White';
     this.ctx.lineWidth = params.DEFAULT_LINE_WIDTH;
-
-    poseDetection.util.getAdjacentPairs(params.STATE.MoveNet).forEach(([
+    //movenet2blazepose
+    poseDetection.util.getAdjacentPairs(params.STATE.BlazePose).forEach(([
       i, j
     ]) => {
       const kp1 = keypoints[i];
@@ -183,9 +181,13 @@ export class Camera {
       // If score is null, just show the keypoint.
       const score1 = kp1.score != null ? kp1.score : 1;
       const score2 = kp2.score != null ? kp2.score : 1;
-      const scoreThreshold = params.MOVENET_CONFIG.scoreThreshold || 0;
+      //movenet2blazepose
+      const scoreThreshold = params.BLAZEPOSE_CONFIG.scoreThreshold || 0;
 
-      if (score1 >= scoreThreshold && score2 >= scoreThreshold) {
+      if (score1 >= scoreThreshold && score2 >= scoreThreshold
+          && i >= params.BLAZEPOSE_CONFIG.indexStart
+          && i <= params.BLAZEPOSE_CONFIG.indexEnd
+      ) {
         this.ctx.beginPath();
         this.ctx.moveTo(kp1.x, kp1.y);
         this.ctx.lineTo(kp2.x, kp2.y);

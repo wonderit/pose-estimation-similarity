@@ -27,25 +27,20 @@ export const VIDEO_SIZE = {
 };
 export const STATE = {
   camera: { targetFPS: 60, sizeOption: '640 X 480' },
-  backend: '',
+  backend: 'tfjs-webgl',
   flags: {},
   modelConfig: {},
-  MoveNet: "MoveNet"
+  MoveNet: "MoveNet",
+  BlazePose: "BlazePose"
 };
 export const BLAZEPOSE_CONFIG = {
   maxPoses: 1,
-  scoreThreshold: 0.65
-};
-export const POSENET_CONFIG = {
-  maxPoses: 1,
-  scoreThreshold: 0.5
-};
-export const MOVENET_CONFIG = {
-  maxPoses: 1,
-  type: 'lightning',
-  scoreThreshold: 0.3,
-  customModel: '',
-  enableTracking: false
+  scoreThreshold: 0.65,
+  runtime: 'tfjs',
+  enableSmoothing: true,
+  modelType: 'full', //lite, full, heavy
+  indexStart: 11,
+  indexEnd: 31
 };
 /**
  * This map descripes tunable flags and theior corresponding types.
