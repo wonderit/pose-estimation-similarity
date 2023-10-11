@@ -30,14 +30,6 @@ var myScore = 0;
 
 var videoFlag = false;
 
-
-video.addEventListener('ended', showScore, false);
-function showScore(e) {
-    //remove video here
-    //add menu here
-    var finalScore = getFinalScore();
-}
-
 // 최종 Score 계산
 let great_cnt = 0, good_cnt = 0, soso_cnt = 0, bad_cnt = 0;
 
@@ -59,8 +51,18 @@ function getScore(weight) {
         bad_cnt++;
     }
 
+    const finalScore = getFinalScore();
+    let finalScoreText = 'Bad';
+    if (finalScore >= 60) {
+        finalScoreText = 'Great';
+    } else if (finalScore >= 40) {
+        finalScoreText = 'Good';
+    } else if (finalScore >= 20) {
+        finalScoreText = 'SoSo';
+    }
 
-    $('.score_text').text(parseInt(getFinalScore()))
+    // $('.score_text').text(parseInt(getFinalScore()))
+    $('.score_text').text(`${finalScoreText}(${parseInt(finalScore)})`)
     $('.great').text(great_cnt)
     $('.good').text(good_cnt)
     $('.soso').text(soso_cnt)
