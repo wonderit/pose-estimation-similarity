@@ -110,7 +110,7 @@ async function renderResult() {
     endEstimatePosesStats();
 
     // get video poses array
-    fetch(`../video/${jsFileName}.json`)
+    fetch(`./video/${jsFileName}.json`)
         .then((res) => {
             return res.json();
         })
