@@ -1,4 +1,4 @@
-import { Camera } from './camera.js';
+import { Camera } from './testCamera.js';
 import {BLAZEPOSE_CONFIG, STATE} from './params.js';
 import { setupStats } from './stats_panel.js';
 import { setBackendAndEnvFlags } from './util.js';
@@ -10,6 +10,9 @@ let inferenceTimeSum = 0, lastPanelUpdate = 0;
 
 // variants for video
 var video = document.getElementById("video");
+
+// variants for test video
+// var camera = document.getElementById("webcam")
 
 // get jsFileName from video.src (e.g.: "video/1c.mp4#t=0.1" -> "1c")
 let jsFileName = video.src.split("/").pop().split("#")[0].split(".")[0];
@@ -95,19 +98,20 @@ function endEstimatePosesStats() {
 }
 
 async function renderResult() {
-    if (camera.webcam.readyState < 2) {
-        await new Promise((resolve) => {
-            camera.webcam.onloadeddata = () => {
-                resolve(webcam);
-            };
-        });
-    }
+    // if (camera.webcam.readyState < 2) {
+    //     await new Promise((resolve) => {
+    //         camera.webcam.onloadeddata = () => {
+    //             resolve(webcam);
+    //         };
+    //     });
+    // }
 
     canvasVideo.getContext('2d').drawImage(video, 0, 0, canvasVideo.width, canvasVideo.height);
     // FPS only counts the time it takes to finish estimatePoses.
     beginEstimatePosesStats();
 
-    webcamPoses = await detector.estimatePoses(camera.webcam, { flipHorizontal: true });
+    // webcamPoses = await detector.estimatePoses(camera.webcam, { flipHorizontal: true });
+    webcamPoses = await detector.estimatePoses(camera.webcam, { flipHorizontal: false });
 
     endEstimatePosesStats();
 
