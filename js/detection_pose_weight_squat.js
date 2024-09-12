@@ -3,7 +3,13 @@ import {
     BLAZEPOSE_CONFIG,
     POSE_WEIGHT_FOR_EXERCISE_1,
     POSE_WEIGHT_FOR_EXERCISE_2,
+    POSE_WEIGHT_FOR_EXERCISE_arm_l,
+    POSE_WEIGHT_FOR_EXERCISE_arm_r,
     POSE_WEIGHT_FOR_EXERCISE_knee,
+    POSE_WEIGHT_FOR_EXERCISE_knee2,
+    POSE_WEIGHT_FOR_EXERCISE_SQUAT,
+    SCORE_ARRAY_ARM_2,
+    SCORE_ARRAY_KNEE_2,
     STATE
 } from './params.js';
 import { setupStats } from './stats_panel.js';
@@ -19,6 +25,12 @@ var video = document.getElementById("video");
 
 // variants for test video
 // var camera = document.getElementById("webcam")
+
+// set pose weight
+let POSE_WEIGHT = POSE_WEIGHT_FOR_EXERCISE_SQUAT;
+
+// set score threshold array
+let SCORE_THRESHOLD = SCORE_ARRAY_KNEE_2;
 
 // get jsFileName from video.src (e.g.: "video/1c.mp4#t=0.1" -> "1c")
 let jsFileName = video.src.split("/").pop().split("#")[0].split(".")[0];
@@ -42,17 +54,20 @@ var videoFlag = false;
 // 최종 Score 계산
 let great_cnt = 0, good_cnt = 0, soso_cnt = 0, bad_cnt = 0;
 
+// default : [0.08, 0.11, 0.15]
+// Knee1: [0.03, 0.05, 0.07],
+// arm: [0.
 function getScore(weight) {
     maxScore += 3;
-    if (weight <= 0.08) { // great
+    if (weight <= SCORE_THRESHOLD[0]) { // great
         myScore += 3;
         great_cnt++;
     }
-    else if (weight <= 0.11) { // good
+    else if (weight <= SCORE_THRESHOLD[1]) { // good
         myScore += 2;
         good_cnt++;
     }
-    else if (weight <= 0.15) { // soso
+    else if (weight <= SCORE_THRESHOLD[2]) { // soso
         myScore += 1;
         soso_cnt++;
     }
@@ -121,41 +136,33 @@ async function renderResult() {
 
     endEstimatePosesStats();
 
-    // get video poses array
-    fetch(`./video/${jsFileName}.json`)
-        .then((res) => {
-            return res.json();
-        })
-        .then((bodySeq) => {
+    videoPoses = await detector2.estimatePoses(canvasVideo, { flipHorizontal: false });
+    // var frameNumber = Math.floor((video.currentTime / video.duration) * bodySeq.length)
+    // videoPoses = bodySeq[frameNumber];
 
-            // videoPoses = await detector2.estimatePoses(canvasVideo, { flipHorizontal: false });
-            var frameNumber = Math.floor((video.currentTime / video.duration) * bodySeq.length)
-            videoPoses = bodySeq[frameNumber];
+    camera.drawCtx();
 
-            camera.drawCtx();
-
-            // The null check makes sure the UI is not in the middle of changing to a
-            // different model. If during model change, the result is from an old model,
-            // which shouldn't be rendered.
-            if (webcamPoses.length > 0 && !STATE.isModelChanged) {
-                camera.drawResults(webcamPoses);
-                if (video.paused) { videoFlag = false; }
-                else { videoFlag = true; }
-                if (videoFlag && videoPoses.length > 0) {
-                    // save data
-                    // videoPosesResult.push(videoPoses[0].keypoints3D);
-                    // weightedDistance = poseSimilarity(videoPoses[0].keypoints3D.slice(BLAZEPOSE_CONFIG.indexStart,BLAZEPOSE_CONFIG.indexEnd),
-                    //     webcamPoses[0].keypoints3D.slice(BLAZEPOSE_CONFIG.indexStart,BLAZEPOSE_CONFIG.indexEnd));
-                    console.log('length : ', webcamPoses[0].keypoints3D.slice(BLAZEPOSE_CONFIG.indexStart,BLAZEPOSE_CONFIG.indexEnd).length)
-                    weightedDistance = poseSimilarity(
-                        videoPoses.slice(BLAZEPOSE_CONFIG.indexStart,BLAZEPOSE_CONFIG.indexEnd),
-                        webcamPoses[0].keypoints3D.slice(BLAZEPOSE_CONFIG.indexStart,BLAZEPOSE_CONFIG.indexEnd)
-                    )
-                    getScore(weightedDistance);
-                    console.log("score:", weightedDistance, myScore, maxScore);
-                }
-            }
-        });
+    // The null check makes sure the UI is not in the middle of changing to a
+    // different model. If during model change, the result is from an old model,
+    // which shouldn't be rendered.
+    if (webcamPoses.length > 0 && !STATE.isModelChanged) {
+        camera.drawResults(webcamPoses);
+        if (video.paused) { videoFlag = false; }
+        else { videoFlag = true; }
+        if (videoFlag && videoPoses.length > 0) {
+            // save data
+            // videoPosesResult.push(videoPoses[0].keypoints3D);
+            // weightedDistance = poseSimilarity(videoPoses[0].keypoints3D.slice(BLAZEPOSE_CONFIG.indexStart,BLAZEPOSE_CONFIG.indexEnd),
+            //     webcamPoses[0].keypoints3D.slice(BLAZEPOSE_CONFIG.indexStart,BLAZEPOSE_CONFIG.indexEnd));
+            console.log('length : ', webcamPoses[0].keypoints3D.slice(BLAZEPOSE_CONFIG.indexStart,BLAZEPOSE_CONFIG.indexEnd).length)
+            weightedDistance = poseSimilarity(
+              videoPoses[0].keypoints3D.slice(BLAZEPOSE_CONFIG.indexStart,BLAZEPOSE_CONFIG.indexEnd),
+              webcamPoses[0].keypoints3D.slice(BLAZEPOSE_CONFIG.indexStart,BLAZEPOSE_CONFIG.indexEnd)
+            )
+            getScore(weightedDistance);
+            console.log("score:", weightedDistance, myScore, maxScore);
+        }
+    }
 }
 
 async function renderPrediction() {
@@ -168,7 +175,7 @@ async function app() {
     stats = setupStats();
     // movenet -> blazepose
     detector = await poseDetection.createDetector(poseDetection.SupportedModels.BlazePose, BLAZEPOSE_CONFIG);
-    // detector2 = await poseDetection.createDetector(poseDetection.SupportedModels.BlazePose, BLAZEPOSE_CONFIG);
+    detector2 = await poseDetection.createDetector(poseDetection.SupportedModels.BlazePose, BLAZEPOSE_CONFIG);
 
     camera = await Camera.setupCamera(STATE.camera);
 
@@ -183,11 +190,11 @@ function weightedDistanceMatching(vectorPose1XY, vectorPose2XY, vectorConfidence
     const summation1 = 1 / vectorConfidences[vectorConfidences.length - 1];
     var summation2 = 0;
 
-    var summation_weights = 1 / POSE_WEIGHT_FOR_EXERCISE_knee.reduce((pv, cv) => pv+cv, 0);
+    var summation_weights = 1 / POSE_WEIGHT.reduce((pv, cv) => pv+cv, 0);
 
     for (var i = 0; i < vectorPose1XY.length; i++) {
         var confIndex = Math.floor(i / 2);
-        summation2 += POSE_WEIGHT_FOR_EXERCISE_knee[confIndex] * vectorConfidences[confIndex] * Math.abs(vectorPose1XY[i] - vectorPose2XY[i]);
+        summation2 += POSE_WEIGHT[confIndex] * vectorConfidences[confIndex] * Math.abs(vectorPose1XY[i] - vectorPose2XY[i]);
     }
 
     return summation_weights * (vectorConfidences.length - 1) * summation1 * summation2;

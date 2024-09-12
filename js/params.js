@@ -41,8 +41,105 @@ export const BLAZEPOSE_CONFIG = {
   enableSmoothing: true,
   modelType: 'full', //lite, full, heavy
   indexStart: 11,
-  indexEnd: 31
+  indexEnd: 33
 };
+
+// 11: left_shoulder  \
+// 12: right_shoulder  \
+// 13: left_elbow  \
+// 14: right_elbow  \
+// 15: left_wrist  \
+// 16: right_wrist  \
+
+// 17: left_pinky  \
+// 18: right_pinky  \
+// 19: left_index  \
+// 20: right_index  \
+// 21: left_thumb  \
+// 22: right_thumb  \
+
+// 23: left_hip  \
+// 24: right_hip  \
+// 25: left_knee  \
+// 26: right_knee  \
+// 27: left_ankle  \
+// 28: right_ankle  \
+
+// 29: left_heel  \
+// 30: right_heel  \
+// 31: left_foot_index  \
+// 32: right_foot_index
+export const POSE_WEIGHT_FOR_EXERCISE_1 = [
+  5, 5, 5, 5, 5, 5,
+  5, 5, 5, 5, 5, 5,
+  5, 5, 5, 5, 5, 5,
+  5, 5, 5, 5,
+]
+
+export const POSE_WEIGHT_FOR_EXERCISE_2 = [
+  1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1,
+  3, 3, 3, 3, 3, 3,
+  10, 10, 10, 10,
+]
+
+
+export const POSE_WEIGHT_FOR_EXERCISE_knee =  [
+  0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0,
+  10, 10, 10, 10, 10, 10,
+  10, 10, 10, 10,
+]
+export const POSE_WEIGHT_FOR_EXERCISE_knee2 =  [
+  1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1,
+  5, 5, 5, 5, 5, 5,
+  5, 5, 5, 5,
+]
+
+// 능동외전 (좌)
+export const POSE_WEIGHT_FOR_EXERCISE_arm_l =  [
+  10, 1, 10, 1, 10, 1,
+  10, 1, 10, 1, 10, 1,
+  1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1,
+]
+// 능동외전 우
+export const POSE_WEIGHT_FOR_EXERCISE_arm_r =  [
+  1, 10, 1, 10, 1, 10,
+  1, 10, 1, 10, 1, 10,
+  1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1,
+]
+
+// 무릎굴곡신전
+export const POSE_WEIGHT_FOR_EXERCISE_KNEE_1 =  [
+  1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1,
+  5, 10, 5, 10, 5, 10,
+  5, 5, 5, 5,
+]
+
+// squat
+export const POSE_WEIGHT_FOR_EXERCISE_SQUAT =  [
+  1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1,
+  10, 10, 10, 10, 10, 10,
+  5, 5, 5, 5,
+]
+
+//능동 전방 굴곡
+export const SCORE_ARRAY_ARM_1 = [0.035, 0.055, 0.08]
+
+//능동외전, 능동전방굴곡
+export const SCORE_ARRAY_ARM_2 = [0.045, 0.07, 0.13]
+
+// 무릎굴곡신전
+export const SCORE_ARRAY_KNEE_1 = [0.05, 0.1, 0.15]
+
+// squat
+export const SCORE_ARRAY_KNEE_2 = [0.03, 0.06, 0.09]
+
 /**
  * This map descripes tunable flags and theior corresponding types.
  *
